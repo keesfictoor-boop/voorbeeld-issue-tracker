@@ -10,7 +10,7 @@
 
   <!-- Navigatiebalk -->
   <header class="bg-sky-900 text-white shadow-md">
-    <div class="max-w-6xl mx-mx-auto px-6 py-4 flex justify-between items-center">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
       <div class="flex items-center space-x-3">
         <div class="bg-amber-500 text-sky-900 p-2 rounded-lg font-bold text-xl">P</div>
         <div>
@@ -40,14 +40,14 @@
         </div>
       </div>
 
-      <!-- STAP 1: Is het een verordening-artikel? -->
+      <!-- STAP 1: Categorie selectie -->
       <div id="wizard-step-1" class="space-y-6">
         <h2 class="text-xl font-bold text-slate-900">1. Wat voor type knelpunt wilt u melden?</h2>
         <p class="text-sm text-slate-600">Betreft het probleem een specifiek artikel uit de Omgevingsverordening, of een algemeen organisatorisch/procesmatig knelpunt?</p>
         <div class="grid grid-cols-2 gap-4">
           <button onclick="selectType('verordening')" class="border-2 border-sky-600 bg-sky-50 hover:bg-sky-100 p-6 rounded-lg text-left transition">
             <span class="block font-bold text-sky-900 mb-1">Omgevingsverordening</span>
-            <span class="text-xs text-slate-600">Gaat over inhoud, interpretatie of uitvoerbaarheid van een specifiek artikel.</span>
+            <span class="text-xs text-slate-600">Gaat over inhoud, interpretatie of uitvoerbaarheid van een artikel.</span>
           </button>
           <button onclick="selectType('algemeen')" class="border-2 border-slate-200 hover:border-slate-400 p-6 rounded-lg text-left transition">
             <span class="block font-bold text-slate-900 mb-1">Algemeen Organisatorisch</span>
@@ -56,36 +56,45 @@
         </div>
       </div>
 
-      <!-- STAP 2: Artikel Selectie -->
+      <!-- STAP 2: Artikel & Lid Invoer -->
       <div id="wizard-step-2" class="hidden space-y-6">
         <h2 class="text-xl font-bold text-slate-900">2. Welk artikel betreft het?</h2>
-        <div id="article-select-container">
-          <label class="block text-sm font-medium mb-2">Selecteer het relevant artikel uit de Omgevingsverordening:</label>
-          <select id="article-input" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500">
-            <option value="Art 3.2 - Bedrijventerreinen">Art. 3.2 - Werken op bedrijventerreinen & milieuzones</option>
-            <option value="Art 4.15 - Zonne-energie">Art. 4.15 - Inpassingscriteria grootschalige zonne-energie</option>
-            <option value="Art 5.1 - Geurhinder">Art. 5.1 - Geurhinder rond veehouderijen</option>
-            <option value="Art 6.8 - Stikstof">Art. 6.8 - Ontheffingsgronden stikstofgevoelig natuurgebied</option>
-          </select>
+        
+        <!-- Verordening Invoer -->
+        <div id="article-select-container" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Artikelnummer uit Omgevingsverordening *</label>
+            <input type="text" id="article-input" placeholder="bijv. Artikel 6.13" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Lid / Onderdeel <span class="text-slate-400 font-normal">(optioneel)</span></label>
+            <input type="text" id="article-lid-input" placeholder="bijv. Lid 2, onder b" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" />
+          </div>
         </div>
-        <div id="general-category-container" class="hidden">
-          <label class="block text-sm font-medium mb-2">Selecteer het organisatie-onderdeel:</label>
-          <select id="general-category-input" class="w-full border rounded-lg p-3 text-sm">
+
+        <!-- Algemeen Categorie Invoer -->
+        <div id="general-category-container" class="hidden space-y-4">
+          <label class="block text-sm font-medium text-slate-700 mb-1">Selecteer het organisatie-onderdeel:</label>
+          <select id="general-category-input" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
             <option value="Proces & Doorlooptijden">Proces & Doorlooptijden</option>
             <option value="Afstemming Gemeenten">Afstemming met Gemeenten / Regio's</option>
             <option value="Samenwerking Juridisch & Beleid">Samenwerking tussen Juridisch & Beleid</option>
           </select>
         </div>
-        <button onclick="goToStep(3)" class="bg-sky-900 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-sky-800">Volgende</button>
+
+        <div class="flex justify-between pt-4">
+          <button onclick="goToStep(1)" class="text-slate-500 text-sm font-medium">Terug</button>
+          <button onclick="validateStep2()" class="bg-sky-900 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-sky-800">Volgende</button>
+        </div>
       </div>
 
       <!-- STAP 3: Knelpunt omschrijving -->
       <div id="wizard-step-3" class="hidden space-y-6">
         <h2 class="text-xl font-bold text-slate-900">3. Wat is precies het knelpunt?</h2>
         <p class="text-sm text-slate-600">Beschrijf in eigen woorden de casus of de onduidelijkheid in de regel waartegen u aanloopt.</p>
-        <textarea id="issue-description" rows="4" class="w-full border rounded-lg p-3 text-sm" placeholder="Bijvoorbeeld: Gemeente X interpreteert lid 2 anders dan onze juridische afdeling. Hierdoor ontstaat vertraging bij de vergunningverlening..."></textarea>
+        <textarea id="issue-description" rows="4" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="Bijvoorbeeld: Gemeente X interpreteert lid 2 anders dan onze juridische afdeling. Hierdoor ontstaat vertraging bij de vergunningverlening..."></textarea>
         <div class="flex justify-between">
-          <button onclick="goToStep(2)" class="text-slate-500 text-sm">Terug</button>
+          <button onclick="goToStep(2)" class="text-slate-500 text-sm font-medium">Terug</button>
           <button onclick="triggerAISummary()" class="bg-sky-900 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-sky-800">Genereer AI Samenvatting</button>
         </div>
       </div>
@@ -132,9 +141,9 @@
   <script>
     // Demo in-memory database
     let db = [
-      { id: 1, type: 'verordening', target: 'Art 3.2 - Bedrijventerreinen', summary: 'Onduidelijkheid over kwalificatie "kleinschalige herstructurering" bij uitbreiding van logistieke bedrijven.', checked: false },
-      { id: 2, type: 'verordening', target: 'Art 4.15 - Zonne-energie', summary: 'Tegenstrijdige eisen tussen lokaal draagvlak en provinciale landschappelijke inpassingskaders.', checked: true },
-      { id: 3, type: 'algemeen', target: 'Proces & Doorlooptijden', summary: 'Vertraging bij adviesaanvragen doordat juridische toetsing pas aan het einde van het proces plaatsvindt.', checked: false }
+      { id: 1, type: 'verordening', target: 'Artikel 3.2 (Lid 1)', summary: 'Onduidelijkheid over kwalificatie "kleinschalige herstructurering" bij uitbreiding van logistieke bedrijven.', checked: false },
+      { id: 2, type: 'verordening', target: 'Artikel 6.13 (Lid 2, onder b)', summary: 'In de praktijk schuurt de minimale afstandseis met gemeentelijke uitbreidingsplannen.', checked: false },
+      { id: 3, type: 'algemeen', target: 'Proces & Doorlooptijden', summary: 'Vertraging bij adviesaanvragen doordat juridische toetsing pas aan het einde van het proces plaatsvindt.', checked: true }
     ];
 
     let currentFormData = { type: 'verordening', target: '', rawText: '', summary: '' };
@@ -162,6 +171,24 @@
       document.getElementById('progress-bar').style.width = `${(step/5)*100}%`;
     }
 
+    function validateStep2() {
+      if (currentFormData.type === 'verordening') {
+        const art = document.getElementById('article-input').value.trim();
+        const lid = document.getElementById('article-lid-input').value.trim();
+        
+        if (!art) {
+          alert('Vul a.u.b. een artikelnummer in (bijv. Artikel 6.13).');
+          return;
+        }
+        
+        currentFormData.target = lid ? `${art} (${lid})` : art;
+      } else {
+        currentFormData.target = document.getElementById('general-category-input').value;
+      }
+      
+      goToStep(3);
+    }
+
     function triggerAISummary() {
       const text = document.getElementById('issue-description').value;
       if(!text.trim()) return alert('Vul a.u.b. eerst een knelpunt in.');
@@ -175,10 +202,6 @@
     }
 
     function saveIssue() {
-      currentFormData.target = currentFormData.type === 'verordening' 
-        ? document.getElementById('article-input').value 
-        : document.getElementById('general-category-input').value;
-
       db.push({
         id: Date.now(),
         type: currentFormData.type,
@@ -191,6 +214,8 @@
     }
 
     function resetWizard() {
+      document.getElementById('article-input').value = '';
+      document.getElementById('article-lid-input').value = '';
       document.getElementById('issue-description').value = '';
       goToStep(1);
     }
@@ -209,10 +234,13 @@
         let section = document.createElement('div');
         section.className = "border border-slate-200 rounded-lg p-4 bg-slate-50";
         
-        let header = `<h3 class="font-bold text-sky-900 mb-2 border-b pb-1">${target}</h3>`;
+        let header = `<h3 class="font-bold text-sky-900 mb-2 border-b pb-1 flex items-center justify-between">
+                        <span>${target}</span>
+                        <span class="text-xs font-normal bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full">${grouped[target].length} knelpunt(en)</span>
+                      </h3>`;
         let itemsHtml = grouped[target].map(item => `
           <div class="flex items-start space-x-3 py-2">
-            <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleCheck(${item.id})" class="mt-1 h-4 w-4 text-sky-600 rounded">
+            <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleCheck(${item.id})" class="mt-1 h-4 w-4 text-sky-600 rounded cursor-pointer">
             <span class="text-sm ${item.checked ? 'line-through text-slate-400' : 'text-slate-700'}">${item.summary}</span>
           </div>
         `).join('');
