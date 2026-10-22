@@ -3,225 +3,614 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Omgevingsverordening Issue-Meldpunt (Demo)</title>
+  <title>Provinciaal Meldpunt Instructieregels & Knelpunten</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800 font-sans">
+<body class="bg-slate-100 min-h-screen text-slate-800 font-sans flex flex-col">
 
   <!-- Navigatiebalk -->
-  <header class="bg-sky-900 text-white shadow-md">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+  <header class="bg-sky-950 text-white shadow-lg sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
       <div class="flex items-center space-x-3">
-        <div class="bg-amber-500 text-sky-900 p-2 rounded-lg font-bold text-xl">P</div>
+        <div class="bg-amber-500 text-sky-950 p-2.5 rounded-xl font-extrabold text-xl shadow-inner">P</div>
         <div>
-          <h1 class="font-bold text-lg leading-tight">Provinciaal Meldpunt Instructieregels</h1>
-          <p class="text-xs text-sky-200">Demo voor MT / Management</p>
+          <h1 class="font-bold text-lg leading-tight tracking-wide">Provinciaal Meldpunt Instructieregels</h1>
+          <p class="text-xs text-sky-300">Beleids- & Regel-evaluatie Omgevingsverordening</p>
         </div>
       </div>
-      <div class="space-x-2">
-        <button onclick="switchTab('wizard')" id="btn-tab-wizard" class="px-4 py-2 text-sm rounded-md bg-white text-sky-900 font-semibold shadow">Nieuw Knelpunt</button>
-        <button onclick="switchTab('browser')" id="btn-tab-browser" class="px-4 py-2 text-sm rounded-md text-white hover:bg-sky-800">Overzicht per Artikel</button>
+      <div class="flex space-x-2">
+        <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="px-4 py-2 text-sm rounded-lg bg-white text-sky-950 font-bold shadow-sm transition">
+          📊 Dashboard
+        </button>
+        <button onclick="switchTab('wizard')" id="btn-tab-wizard" class="px-4 py-2 text-sm rounded-lg text-sky-100 hover:bg-sky-900 font-medium transition">
+          ➕ Nieuw Knelpunt
+        </button>
+        <button onclick="switchTab('browser')" id="btn-tab-browser" class="px-4 py-2 text-sm rounded-lg text-sky-100 hover:bg-sky-900 font-medium transition">
+          📂 Artikelen & Issues
+        </button>
       </div>
     </div>
   </header>
 
-  <main class="max-w-4xl mx-auto p-6">
+  <!-- Hoofd-inhoud -->
+  <main class="max-w-7xl mx-auto p-6 flex-grow w-full">
 
-    <!-- TAB 1: STAPSGEWIJZE WIZARD -->
-    <div id="tab-wizard" class="bg-white rounded-xl shadow-lg p-8">
+    <!-- KPI STATS BAR (Altijd zichtbaar) -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-500 uppercase">Totaal Knelpunten</p>
+          <h3 id="stat-total" class="text-2xl font-bold text-slate-900">0</h3>
+        </div>
+        <div class="bg-sky-100 text-sky-800 p-3 rounded-lg text-lg">📁</div>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-500 uppercase">Blokkerend / Kritiek</p>
+          <h3 id="stat-critical" class="text-2xl font-bold text-red-600">0</h3>
+        </div>
+        <div class="bg-red-100 text-red-800 p-3 rounded-lg text-lg">⚠️</div>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-500 uppercase">Geselecteerd voor Veegronde</p>
+          <h3 id="stat-selected" class="text-2xl font-bold text-amber-600">0</h3>
+        </div>
+        <div class="bg-amber-100 text-amber-800 p-3 rounded-lg text-lg">📝</div>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-500 uppercase">Verwerkt in Herziening</p>
+          <h3 id="stat-resolved" class="text-2xl font-bold text-emerald-600">0</h3>
+        </div>
+        <div class="bg-emerald-100 text-emerald-800 p-3 rounded-lg text-lg">✓</div>
+      </div>
+    </div>
+
+    <!-- VIEW 1: DASHBOARD -->
+    <div id="view-dashboard" class="space-y-6">
+      <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Overzicht Knelpunten Instructieregels</h2>
+            <p class="text-xs text-slate-500">Filter, bekijk en beheer gemelde issues voor de komende regelherziening.</p>
+          </div>
+          <div class="flex flex-wrap gap-2 w-full md:w-auto">
+            <button onclick="exportCSV()" class="text-xs bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold px-3 py-2 rounded-lg flex items-center gap-1 transition">
+              📥 Exporteer naar CSV
+            </button>
+            <button onclick="switchTab('wizard')" class="text-xs bg-sky-900 hover:bg-sky-800 text-white font-semibold px-4 py-2 rounded-lg flex items-center gap-1 transition">
+              ➕ Nieuw Knelpunt
+            </button>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6 bg-slate-50 p-4 rounded-lg border border-slate-200">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Zoeken</label>
+            <input type="text" id="filter-search" oninput="renderDashboardTable()" placeholder="Zoek op ID, artikel of tekst..." class="w-full border rounded-md p-2 text-xs focus:ring-2 focus:ring-sky-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Beleidsveld</label>
+            <select id="filter-field" onchange="renderDashboardTable()" class="w-full border rounded-md p-2 text-xs focus:ring-2 focus:ring-sky-500 outline-none">
+              <option value="ALL">Alle Beleidsvelden</option>
+              <option value="Bedrijventerreinen & Economie">Bedrijventerreinen & Economie</option>
+              <option value="Energietransitie & Landschap">Energietransitie & Landschap</option>
+              <option value="Landbouw, Geur & Milieu">Landbouw, Geur & Milieu</option>
+              <option value="Natuur & Stikstof">Natuur & Stikstof</option>
+              <option value="Wonen & Urbanisatie">Wonen & Urbanisatie</option>
+              <option value="Algemeen Organisatorisch">Algemeen Organisatorisch</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Prioriteit</label>
+            <select id="filter-priority" onchange="renderDashboardTable()" class="w-full border rounded-md p-2 text-xs focus:ring-2 focus:ring-sky-500 outline-none">
+              <option value="ALL">Alle Prioriteiten</option>
+              <option value="Kritiek">Kritiek (Blokkerend)</option>
+              <option value="Hoog">Hoog</option>
+              <option value="Middel">Middel</option>
+              <option value="Laag">Laag</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Status</label>
+            <select id="filter-status" onchange="renderDashboardTable()" class="w-full border rounded-md p-2 text-xs focus:ring-2 focus:ring-sky-500 outline-none">
+              <option value="ALL">Alle Statussen</option>
+              <option value="In behandeling">In behandeling</option>
+              <option value="Opgeslagen voor Veegronde">Opgeslagen voor Veegronde</option>
+              <option value="Verwerkt in Herziening">Verwerkt in Herziening</option>
+              <option value="Geparkeerd">Geparkeerd</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Tabel met issues -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-100 border-b border-slate-200 text-slate-600 uppercase font-bold tracking-wider">
+                <th class="p-3">ID</th>
+                <th class="p-3">Artikel / Categorie</th>
+                <th class="p-3">Beleidsveld</th>
+                <th class="p-3">Samenvatting Knelpunt</th>
+                <th class="p-3">Prioriteit</th>
+                <th class="p-3">Status</th>
+                <th class="p-3 text-center">Acties</th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-table-body" class="divide-y divide-slate-200">
+              <!-- Dynamisch gevuld -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: STAPSGEWIJZE MELD-WIZARD -->
+    <div id="view-wizard" class="hidden bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto border border-slate-200">
       <!-- Voortgangsbalk -->
       <div class="mb-8">
         <div class="flex justify-between text-xs text-slate-500 mb-1 font-semibold">
           <span id="step-label">Stap 1 van 5</span>
           <span id="step-title">Categorie kiezen</span>
         </div>
-        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+        <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
           <div id="progress-bar" class="bg-sky-600 h-full w-1/5 transition-all duration-300"></div>
         </div>
       </div>
 
-      <!-- STAP 1: Categorie selectie -->
+      <!-- STAP 1: Type Categorie -->
       <div id="wizard-step-1" class="space-y-6">
         <h2 class="text-xl font-bold text-slate-900">1. Wat voor type knelpunt wilt u melden?</h2>
-        <p class="text-sm text-slate-600">Betreft het probleem een specifiek artikel uit de Omgevingsverordening, of een algemeen organisatorisch/procesmatig knelpunt?</p>
-        <div class="grid grid-cols-2 gap-4">
-          <button onclick="selectType('verordening')" class="border-2 border-sky-600 bg-sky-50 hover:bg-sky-100 p-6 rounded-lg text-left transition">
-            <span class="block font-bold text-sky-900 mb-1">Omgevingsverordening</span>
-            <span class="text-xs text-slate-600">Gaat over inhoud, interpretatie of uitvoerbaarheid van een artikel.</span>
+        <p class="text-sm text-slate-600">Kies of het probleem direct betrekking heeft op een specifiek artikel/regel uit de Omgevingsverordening of op een procesmatige kwestie.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <button onclick="selectType('verordening')" class="border-2 border-sky-600 bg-sky-50 hover:bg-sky-100 p-6 rounded-xl text-left transition group shadow-sm">
+            <span class="block font-bold text-sky-950 text-base mb-1 group-hover:text-sky-900">📜 Omgevingsverordening (Artikel)</span>
+            <span class="text-xs text-slate-600 leading-relaxed">Gaat over inhoud, interpretatie, tegenstrijdigheid of uitvoerbaarheid van een specifiek artikel en/of lid.</span>
           </button>
-          <button onclick="selectType('algemeen')" class="border-2 border-slate-200 hover:border-slate-400 p-6 rounded-lg text-left transition">
-            <span class="block font-bold text-slate-900 mb-1">Algemeen Organisatorisch</span>
-            <span class="text-xs text-slate-600">Gaat over samenwerking, afstemming met gemeenten, procedures of werkwijzen.</span>
+          <button onclick="selectType('algemeen')" class="border-2 border-slate-200 hover:border-slate-400 bg-white p-6 rounded-xl text-left transition group shadow-sm">
+            <span class="block font-bold text-slate-900 text-base mb-1">⚙️ Algemeen Organisatorisch</span>
+            <span class="text-xs text-slate-600 leading-relaxed">Gaat over afstemming met gemeenten, werkwijze tussen juristen en beleid, of doorlooptijden.</span>
           </button>
         </div>
       </div>
 
-      <!-- STAP 2: Artikel & Lid Invoer -->
+      <!-- STAP 2: Artikel, Lid & Beleidsveld -->
       <div id="wizard-step-2" class="hidden space-y-6">
-        <h2 class="text-xl font-bold text-slate-900">2. Welk artikel betreft het?</h2>
+        <h2 class="text-xl font-bold text-slate-900">2. Welk artikel en beleidsveld betreft het?</h2>
         
         <!-- Verordening Invoer -->
-        <div id="article-select-container" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Artikelnummer uit Omgevingsverordening *</label>
-            <input type="text" id="article-input" placeholder="bijv. Artikel 6.13" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Lid / Onderdeel <span class="text-slate-400 font-normal">(optioneel)</span></label>
-            <input type="text" id="article-lid-input" placeholder="bijv. Lid 2, onder b" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" />
+        <div id="container-verordening-input" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Artikelnummer *</label>
+              <input type="text" id="input-article" placeholder="bijv. Artikel 6.13" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Lid / Onderdeel <span class="text-slate-400 font-normal">(optioneel)</span></label>
+              <input type="text" id="input-lid" placeholder="bijv. Lid 2, onder b" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 outline-none">
+            </div>
           </div>
         </div>
 
         <!-- Algemeen Categorie Invoer -->
-        <div id="general-category-container" class="hidden space-y-4">
-          <label class="block text-sm font-medium text-slate-700 mb-1">Selecteer het organisatie-onderdeel:</label>
-          <select id="general-category-input" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
-            <option value="Proces & Doorlooptijden">Proces & Doorlooptijden</option>
-            <option value="Afstemming Gemeenten">Afstemming met Gemeenten / Regio's</option>
-            <option value="Samenwerking Juridisch & Beleid">Samenwerking tussen Juridisch & Beleid</option>
+        <div id="container-general-input" class="hidden">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Organisatorisch Onderdeel *</label>
+          <select id="input-general-category" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 outline-none">
+            <option value="Proces & Doorlooptijden">Proces & Doorlooptijden bij adviesaanvragen</option>
+            <option value="Afstemming Gemeenten">Afstemming & Vooroverleg met Gemeenten</option>
+            <option value="Samenwerking Juridisch & Beleid">Samenwerking tussen Juridische Zaken & Beleid</option>
+            <option value="Digitaal Stelsel (DSO)">Digitaal Stelsel Omgevingswet (DSO) & Vragenbomen</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Beleidsveld *</label>
+          <select id="input-field" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 outline-none">
+            <option value="Bedrijventerreinen & Economie">Bedrijventerreinen & Economie</option>
+            <option value="Energietransitie & Landschap">Energietransitie & Landschap</option>
+            <option value="Landbouw, Geur & Milieu">Landbouw, Geur & Milieu</option>
+            <option value="Natuur & Stikstof">Natuur & Stikstof</option>
+            <option value="Wonen & Urbanisatie">Wonen & Urbanisatie</option>
+            <option value="Algemeen Organisatorisch">Algemeen Organisatorisch</option>
           </select>
         </div>
 
         <div class="flex justify-between pt-4">
-          <button onclick="goToStep(1)" class="text-slate-500 text-sm font-medium">Terug</button>
-          <button onclick="validateStep2()" class="bg-sky-900 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-sky-800">Volgende</button>
+          <button onclick="goToStep(1)" class="text-slate-500 text-sm font-semibold">Terug</button>
+          <button onclick="validateStep2()" class="bg-sky-950 text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-sky-900 transition">Volgende</button>
         </div>
       </div>
 
-      <!-- STAP 3: Knelpunt omschrijving -->
+      <!-- STAP 3: Knelpunt & Prioriteit -->
       <div id="wizard-step-3" class="hidden space-y-6">
-        <h2 class="text-xl font-bold text-slate-900">3. Wat is precies het knelpunt?</h2>
-        <p class="text-sm text-slate-600">Beschrijf in eigen woorden de casus of de onduidelijkheid in de regel waartegen u aanloopt.</p>
-        <textarea id="issue-description" rows="4" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="Bijvoorbeeld: Gemeente X interpreteert lid 2 anders dan onze juridische afdeling. Hierdoor ontstaat vertraging bij de vergunningverlening..."></textarea>
-        <div class="flex justify-between">
-          <button onclick="goToStep(2)" class="text-slate-500 text-sm font-medium">Terug</button>
-          <button onclick="triggerAISummary()" class="bg-sky-900 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-sky-800">Genereer AI Samenvatting</button>
+        <h2 class="text-xl font-bold text-slate-900">3. Omschrijving & Impact van het Knelpunt</h2>
+        
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Beschrijf het knelpunt of de casus uit de praktijk *</label>
+          <textarea id="input-description" rows="4" placeholder="Beschrijf de situatie. Bijvoorbeeld: Bij een uitbreiding van een distributiecentrum ontstaat discussie met de gemeente over het begrip 'kleinschalige herstructurering' in lid 1..." class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 outline-none"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Wat is de Mogelijke Oplossing? <span class="text-slate-400 font-normal">(optioneel)</span></label>
+          <textarea id="input-solution" rows="2" placeholder="Bijv. Pas de definitie aan in Artikel 1.1 of voeg een expliciete afwijkingsbevoegdheid toe..." class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 outline-none"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Prioriteit / Urgentie *</label>
+            <select id="input-priority" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 outline-none">
+              <option value="Middel">Middel - Vergt afstemming/tijd, maar geen acute uitval</option>
+              <option value="Kritiek">Kritiek - Blokkeert meerdere actuele gemeentelijke plannen</option>
+              <option value="Hoog">Hoog - Veroorzaakt veel vertraging bij plan-adviezen</option>
+              <option value="Laag">Laag - Redactioneel of klein verduidelijkingspunt</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Uw Naam / Team <span class="text-slate-400 font-normal">(optioneel)</span></label>
+            <input type="text" id="input-reporter" placeholder="bijv. J. Jansen (Plan-adviseur)" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 outline-none">
+          </div>
+        </div>
+
+        <div class="flex justify-between pt-4">
+          <button onclick="goToStep(2)" class="text-slate-500 text-sm font-semibold">Terug</button>
+          <button onclick="triggerAIAnalysis()" class="bg-sky-950 text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-sky-900 transition flex items-center gap-2">
+            <span>✨ Genereer AI-Analyse & Samenvatting</span>
+          </button>
         </div>
       </div>
 
-      <!-- STAP 4: AI Samenvatting & Validatie -->
+      <!-- STAP 4: AI Validatie -->
       <div id="wizard-step-4" class="hidden space-y-6">
-        <h2 class="text-xl font-bold text-slate-900">4. Controleer de AI-samenvatting</h2>
-        <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg">
-          <div class="flex items-center space-x-2 text-amber-800 font-bold mb-1">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            <span>AI Geanalyseerde Kern van het Knelpunt:</span>
+        <h2 class="text-xl font-bold text-slate-900">4. Controleer de AI-Geanalyseerde Melding</h2>
+        
+        <div class="bg-amber-50 border-l-4 border-amber-500 p-5 rounded-r-xl space-y-3">
+          <div class="flex items-center space-x-2 text-amber-900 font-bold">
+            <span class="text-lg">🤖</span>
+            <span>AI-Juridische Kernsamenvatting:</span>
           </div>
-          <p id="ai-summary-text" class="text-sm text-amber-900 italic"></p>
+          <p id="ai-output-summary" class="text-sm text-amber-950 italic font-serif leading-relaxed"></p>
         </div>
-        <p class="text-sm font-medium">Vat deze samenvatting de kern van het probleem exact goed samen?</p>
-        <div class="flex space-x-4">
-          <button onclick="saveIssue()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-emerald-700 flex items-center space-x-2">
-            <span>Ja, voeg toe aan database</span>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <div class="bg-sky-50 border border-sky-200 p-4 rounded-lg">
+            <span class="font-bold text-sky-900 block mb-1">💡 Voorgestelde Veegronde-Aanpassing:</span>
+            <p id="ai-output-recommendation" class="text-sky-950"></p>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+            <span class="font-bold text-slate-800 block mb-1">⚖️ Juridisch Risico / Aandachtspunt:</span>
+            <p id="ai-output-risk" class="text-slate-700"></p>
+          </div>
+        </div>
+
+        <p class="text-xs text-slate-600 font-medium">Vat deze AI-analyse de kern van uw melding goed samen om in het register op te nemen?</p>
+        <div class="flex space-x-4 pt-2">
+          <button onclick="saveWizardIssue()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition flex items-center gap-2">
+            <span>✓ Opslaan in Database</span>
           </button>
-          <button onclick="goToStep(3)" class="border border-slate-300 text-slate-700 px-6 py-2 rounded-lg text-sm font-semibold hover:bg-slate-50">Nee, aanpassen</button>
+          <button onclick="goToStep(3)" class="border border-slate-300 text-slate-700 px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-slate-50 transition">
+            Aanpassen
+          </button>
         </div>
       </div>
 
       <!-- STAP 5: Bevestiging -->
       <div id="wizard-step-5" class="hidden text-center space-y-4 py-8">
-        <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">✓</div>
-        <h2 class="text-2xl font-bold text-slate-900">Knelpunt Succesvol Opgeslagen!</h2>
-        <p class="text-slate-600 text-sm">Het knelpunt is gecategoriseerd en toegevoegd aan het overzicht voor beleids- en regelherziening.</p>
-        <button onclick="resetWizard()" class="bg-sky-900 text-white px-6 py-2 rounded-lg text-sm font-semibold mt-4">Nog een melding doen</button>
+        <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl font-bold shadow-inner">✓</div>
+        <h2 class="text-2xl font-bold text-slate-900">Knelpunt Succesvol Geregistreerd!</h2>
+        <p class="text-slate-600 text-sm max-w-md mx-auto">Het knelpunt is opgeslagen onder uniek nummer <span id="confirmed-id" class="font-bold text-sky-900"></span> en direct in te zien in het overzicht.</p>
+        <div class="pt-4 flex justify-center gap-3">
+          <button onclick="resetWizard()" class="bg-sky-950 text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-sky-900 transition">Nog een melding doen</button>
+          <button onclick="switchTab('dashboard')" class="border border-slate-300 text-slate-700 px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-slate-50 transition">Naar Dashboard</button>
+        </div>
       </div>
     </div>
 
-    <!-- TAB 2: ARTIKELEN & ISSUES BROWSER -->
-    <div id="tab-browser" class="hidden bg-white rounded-xl shadow-lg p-8">
-      <h2 class="text-xl font-bold text-slate-900 mb-2">Overzicht Knelpunten per Artikel / Categorie</h2>
-      <p class="text-sm text-slate-600 mb-6">Klik op een artikel om de daaraan gekoppelde knelpunten in te zien en vink ze aan om ze op te nemen in de eerstvolgende veegronde.</p>
+    <!-- VIEW 3: ARTIKELEN BROWSER & VEEGRONDE SELECTIE -->
+    <div id="view-browser" class="hidden space-y-6">
+      <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Artikelen- & Issue-Browser</h2>
+            <p class="text-xs text-slate-500">Overzicht per artikel. Vink knelpunten aan om ze te selecteren voor de komende veegronde.</p>
+          </div>
+          <button onclick="bulkMarkVeegronde()" class="bg-amber-500 hover:bg-amber-600 text-sky-950 font-bold px-4 py-2 rounded-lg text-xs transition">
+            📝 Markeer aangevinkte issues voor Veegronde
+          </button>
+        </div>
 
-      <div class="space-y-4" id="issues-list">
-        <!-- Dynamisch gegenereerd -->
+        <div id="browser-container" class="space-y-4">
+          <!-- Dynamisch gegenereerd -->
+        </div>
       </div>
     </div>
+
   </main>
 
+  <!-- MODAL VOOR DETAIL-WEERGAVE -->
+  <div id="modal-detail" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-start border-b pb-3">
+        <div>
+          <span id="modal-id" class="text-xs font-mono bg-sky-100 text-sky-900 px-2 py-0.5 rounded font-bold"></span>
+          <h3 id="modal-target" class="text-lg font-bold text-slate-900 mt-1"></h3>
+        </div>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div><span class="font-bold text-slate-500">Beleidsveld:</span> <span id="modal-field" class="font-medium"></span></div>
+        <div><span class="font-bold text-slate-500">Prioriteit:</span> <span id="modal-priority" class="font-medium"></span></div>
+        <div><span class="font-bold text-slate-500">Status:</span> <span id="modal-status" class="font-medium"></span></div>
+        <div><span class="font-bold text-slate-500">Inzender:</span> <span id="modal-reporter" class="font-medium"></span></div>
+      </div>
+
+      <div class="space-y-1">
+        <h4 class="text-xs font-bold text-slate-700 uppercase">Omschrijving Knelpunt</h4>
+        <p id="modal-description" class="text-xs text-slate-800 bg-slate-50 p-3 rounded-lg border leading-relaxed"></p>
+      </div>
+
+      <div class="space-y-1">
+        <h4 class="text-xs font-bold text-slate-700 uppercase">Mogelijke Oplossing</h4>
+        <p id="modal-solution" class="text-xs text-slate-800 bg-slate-50 p-3 rounded-lg border leading-relaxed"></p>
+      </div>
+
+      <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 space-y-1">
+        <h4 class="text-xs font-bold text-amber-900 uppercase flex items-center gap-1">🤖 AI-Analyse & Advies</h4>
+        <p id="modal-ai-summary" class="text-xs text-amber-950 italic"></p>
+      </div>
+
+      <div class="flex justify-between items-center pt-2 border-t">
+        <select id="modal-status-select" class="border rounded text-xs p-2">
+          <option value="In behandeling">In behandeling</option>
+          <option value="Opgeslagen voor Veegronde">Opgeslagen voor Veegronde</option>
+          <option value="Verwerkt in Herziening">Verwerkt in Herziening</option>
+          <option value="Geparkeerd">Geparkeerd</option>
+        </select>
+        <div class="space-x-2">
+          <button onclick="updateModalStatus()" class="bg-sky-900 text-white px-4 py-2 rounded text-xs font-semibold">Status Bijwerken</button>
+          <button onclick="closeModal()" class="border px-4 py-2 rounded text-xs font-semibold">Sluiten</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Demo in-memory database
+    // IN-MEMORY DATABASE MET REALISTISCHE PROVINCIALE CASUSSEN
     let db = [
-      { id: 1, type: 'verordening', target: 'Artikel 3.2 (Lid 1)', summary: 'Onduidelijkheid over kwalificatie "kleinschalige herstructurering" bij uitbreiding van logistieke bedrijven.', checked: false },
-      { id: 2, type: 'verordening', target: 'Artikel 6.13 (Lid 2, onder b)', summary: 'In de praktijk schuurt de minimale afstandseis met gemeentelijke uitbreidingsplannen.', checked: false },
-      { id: 3, type: 'algemeen', target: 'Proces & Doorlooptijden', summary: 'Vertraging bij adviesaanvragen doordat juridische toetsing pas aan het einde van het proces plaatsvindt.', checked: true }
+      {
+        id: "IR-2026-001",
+        type: "verordening",
+        target: "Artikel 3.2 (Lid 2, onder b)",
+        field: "Bedrijventerreinen & Economie",
+        description: "Gemeenten interpreteren de zinsnede 'kleinschalige herstructurering' verschillend bij uitbreidingsaanvragen van bestaande logistieke bedrijven. Dit leidt tot willekeur en vertraging bij plantoetsing.",
+        solution: "Verduidelijk de kwantitatieve bovengrens (m²) van 'kleinschalig' in de begripsbepalingen van Artikel 1.1.",
+        priority: "Hoog",
+        status: "In behandeling",
+        reporter: "M. van den Berg (Plan-adviseur)",
+        aiSummary: "Interpretatiegeschil over onbepaalde rechtsbegrippen in Artikel 3.2. Risico op juridische ongelijkheid tussen gemeenten.",
+        aiRecommendation: "Neem op in eerstvolgende veegronde met een concrete oppervlakte-grens (bijv. max 15% uitbreiding).",
+        aiRisk: "Laag risico bij verduidelijking; voorkomt bezwaarprocedure bij vergunningverlening.",
+        checked: false
+      },
+      {
+        id: "IR-2026-002",
+        type: "verordening",
+        target: "Artikel 4.15 (Lid 1)",
+        field: "Energietransitie & Landschap",
+        description: "De minimale afstandseis voor grootschalige zonnevelden tot woongebieden blokkeert een regionaal energieproject (RES 1.0) dat al maatschappelijk draagvlak heeft.",
+        solution: "Voeg een specifieke afwijkingsbevoegdheid voor Gedeputeerde Staten toe onder strikte landschappelijke randvoorwaarden.",
+        priority: "Kritiek",
+        status: "Opgeslagen voor Veegronde",
+        reporter: "S. de Jong (Beleidsadviseur Energie)",
+        aiSummary: "Knelpunt tussen uniforme provinciale instructieregel en maatwerk-initiatieven uit de Regionale Energiestrategie.",
+        aiRecommendation: "Aanpassen via een 'hardheidsclausule' of maatwerkbepaling onder voorwaarde van landschappelijke inpassing.",
+        aiRisk: "Middelmatig risico; vereist afstemming met Gedeputeerde Staten.",
+        checked: true
+      },
+      {
+        id: "IR-2026-003",
+        type: "verordening",
+        target: "Artikel 5.1 (Lid 4)",
+        field: "Landbouw, Geur & Milieu",
+        description: "De rekenmethode voor cumulatieve geurhinder sluit niet meer aan op de nieuwste landelijke RIVM-richtlijnen, waardoor geurcirkels overlappen met nieuwbouwwijken.",
+        solution: "Regelgeving actualiseren volgens de nieuwste landelijke normering.",
+        priority: "Middel",
+        status: "Verwerkt in Herziening",
+        reporter: "R. Bakker (Milieu-expert)",
+        aiSummary: "Incompatibiliteit tussen provinciale verordening en bijgewerkte landelijke milieunormen.",
+        aiRecommendation: "Technisch veegbesluit doorvoeren om de verwijzing naar het RIVM-rekenmodel te actualiseren.",
+        aiRisk: "Laag risico; betreft technische harmonisatie met landelijk recht.",
+        checked: true
+      },
+      {
+        id: "IR-2026-004",
+        type: "algemeen",
+        target: "Samenwerking Juridisch & Beleid",
+        field: "Algemeen Organisatorisch",
+        description: "Juridische toetsing vindt pas plaats aan het einde van het stedenbouwkundig traject, waardoor plannen op het laatste moment moeten worden herschreven.",
+        solution: "Richt een vast overlegstructuur ('Vooroverleg Plan-Advies') in waar juristen in fase 1 meekijken.",
+        priority: "Middel",
+        status: "In behandeling",
+        reporter: "K. de Wit (Procescoördinator)",
+        aiSummary: "Organisatorische vertraging door gebrek aan vroege juridische afstemming in de planfase.",
+        aiRecommendation: "Geen regelherziening nodig; instellen van een intern procesprotocol voor plan-adviseurs.",
+        aiRisk: "N.v.t. (Interne werkprocedure).",
+        checked: false
+      }
     ];
 
-    let currentFormData = { type: 'verordening', target: '', rawText: '', summary: '' };
+    let currentFormData = { type: 'verordening', target: '', field: '', description: '', solution: '', priority: 'Middel', reporter: '', aiSummary: '', aiRec: '', aiRisk: '' };
+    let activeModalId = null;
 
+    // TAB SWITCHING
     function switchTab(tab) {
-      document.getElementById('tab-wizard').classList.toggle('hidden', tab !== 'wizard');
-      document.getElementById('tab-browser').classList.toggle('hidden', tab !== 'browser');
-      document.getElementById('btn-tab-wizard').className = tab === 'wizard' ? "px-4 py-2 text-sm rounded-md bg-white text-sky-900 font-semibold shadow" : "px-4 py-2 text-sm rounded-md text-white hover:bg-sky-800";
-      document.getElementById('btn-tab-browser').className = tab === 'browser' ? "px-4 py-2 text-sm rounded-md bg-white text-sky-900 font-semibold shadow" : "px-4 py-2 text-sm rounded-md text-white hover:bg-sky-800";
+      ['dashboard', 'wizard', 'browser'].forEach(v => {
+        document.getElementById(`view-${v}`).classList.add('hidden');
+        const btn = document.getElementById(`btn-tab-${v}`);
+        btn.className = "px-4 py-2 text-sm rounded-lg text-sky-100 hover:bg-sky-900 font-medium transition";
+      });
+
+      document.getElementById(`view-${tab}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`btn-tab-${tab}`);
+      activeBtn.className = "px-4 py-2 text-sm rounded-lg bg-white text-sky-950 font-bold shadow-sm transition";
+
+      updateKPIs();
+      if(tab === 'dashboard') renderDashboardTable();
       if(tab === 'browser') renderBrowser();
     }
 
+    // KPI COUNTERS
+    function updateKPIs() {
+      document.getElementById('stat-total').innerText = db.length;
+      document.getElementById('stat-critical').innerText = db.filter(i => i.priority === 'Kritiek').length;
+      document.getElementById('stat-selected').innerText = db.filter(i => i.status === 'Opgeslagen voor Veegronde').length;
+      document.getElementById('stat-resolved').innerText = db.filter(i => i.status === 'Verwerkt in Herziening').length;
+    }
+
+    // DASHBOARD RENDER & FILTER
+    function renderDashboardTable() {
+      const body = document.getElementById('dashboard-table-body');
+      body.innerHTML = '';
+
+      const search = document.getElementById('filter-search').value.toLowerCase();
+      const field = document.getElementById('filter-field').value;
+      const priority = document.getElementById('filter-priority').value;
+      const status = document.getElementById('filter-status').value;
+
+      const filtered = db.filter(item => {
+        const matchesSearch = item.id.toLowerCase().includes(search) || item.target.toLowerCase().includes(search) || item.description.toLowerCase().includes(search);
+        const matchesField = field === 'ALL' || item.field === field;
+        const matchesPriority = priority === 'ALL' || item.priority === priority;
+        const matchesStatus = status === 'ALL' || item.status === status;
+        return matchesSearch && matchesField && matchesPriority && matchesStatus;
+      });
+
+      if(filtered.length === 0) {
+        body.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Geen knelpunten gevonden met deze filters.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition cursor-pointer";
+        tr.onclick = (e) => { if(!e.target.closest('button')) openModal(item.id); };
+
+        let priorityBadge = {
+          'Kritiek': 'bg-red-100 text-red-800 border-red-200',
+          'Hoog': 'bg-amber-100 text-amber-800 border-amber-200',
+          'Middel': 'bg-sky-100 text-sky-800 border-sky-200',
+          'Laag': 'bg-slate-100 text-slate-700 border-slate-200'
+        }[item.priority];
+
+        let statusBadge = {
+          'In behandeling': 'bg-sky-50 text-sky-700 border-sky-200',
+          'Opgeslagen voor Veegronde': 'bg-amber-50 text-amber-800 border-amber-300 font-bold',
+          'Verwerkt in Herziening': 'bg-emerald-50 text-emerald-800 border-emerald-300',
+          'Geparkeerd': 'bg-slate-50 text-slate-500 border-slate-200'
+        }[item.status];
+
+        tr.innerHTML = `
+          <td class="p-3 font-mono font-bold text-sky-900">${item.id}</td>
+          <td class="p-3 font-semibold text-slate-900">${item.target}</td>
+          <td class="p-3 text-slate-600">${item.field}</td>
+          <td class="p-3 text-slate-700 max-w-xs truncate">${item.description}</td>
+          <td class="p-3"><span class="border px-2 py-0.5 rounded-full text-[10px] font-bold ${priorityBadge}">${item.priority}</span></td>
+          <td class="p-3"><span class="border px-2 py-0.5 rounded-full text-[10px] ${statusBadge}">${item.status}</span></td>
+          <td class="p-3 text-center">
+            <button onclick="openModal('${item.id}')" class="text-sky-800 hover:text-sky-950 font-bold hover:underline">Details</button>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    // WIZARD FUNCTIONS
     function selectType(type) {
       currentFormData.type = type;
-      document.getElementById('article-select-container').classList.toggle('hidden', type !== 'verordening');
-      document.getElementById('general-category-container').classList.toggle('hidden', type !== 'algemeen');
+      document.getElementById('container-verordening-input').classList.toggle('hidden', type !== 'verordening');
+      document.getElementById('container-general-input').classList.toggle('hidden', type !== 'algemeen');
       goToStep(2);
     }
 
     function goToStep(step) {
       [1,2,3,4,5].forEach(s => document.getElementById(`wizard-step-${s}`).classList.add('hidden'));
       document.getElementById(`wizard-step-${step}`).classList.remove('hidden');
-      
       document.getElementById('step-label').innerText = `Stap ${step} van 5`;
       document.getElementById('progress-bar').style.width = `${(step/5)*100}%`;
     }
 
     function validateStep2() {
-      if (currentFormData.type === 'verordening') {
-        const art = document.getElementById('article-input').value.trim();
-        const lid = document.getElementById('article-lid-input').value.trim();
-        
-        if (!art) {
-          alert('Vul a.u.b. een artikelnummer in (bijv. Artikel 6.13).');
-          return;
-        }
-        
+      if(currentFormData.type === 'verordening') {
+        const art = document.getElementById('input-article').value.trim();
+        const lid = document.getElementById('input-lid').value.trim();
+        if(!art) return alert('Vul a.u.b. een artikelnummer in (bijv. Artikel 6.13).');
         currentFormData.target = lid ? `${art} (${lid})` : art;
       } else {
-        currentFormData.target = document.getElementById('general-category-input').value;
+        currentFormData.target = document.getElementById('input-general-category').value;
       }
-      
+      currentFormData.field = document.getElementById('input-field').value;
       goToStep(3);
     }
 
-    function triggerAISummary() {
-      const text = document.getElementById('issue-description').value;
-      if(!text.trim()) return alert('Vul a.u.b. eerst een knelpunt in.');
-      
-      currentFormData.rawText = text;
-      // Simulatie van AI-samenvatting
-      currentFormData.summary = "Mogelijke interpretatie-onduidelijkheid: " + text.substring(0, 90) + (text.length > 90 ? "..." : "");
-      
-      document.getElementById('ai-summary-text').innerText = `"${currentFormData.summary}"`;
+    function triggerAIAnalysis() {
+      const desc = document.getElementById('input-description').value.trim();
+      if(!desc) return alert('Vul a.u.b. een omschrijving van het knelpunt in.');
+
+      currentFormData.description = desc;
+      currentFormData.solution = document.getElementById('input-solution').value.trim() || 'Geen specifieke oplossing aangedragen.';
+      currentFormData.priority = document.getElementById('input-priority').value;
+      currentFormData.reporter = document.getElementById('input-reporter').value.trim() || 'Anonieme Plan-adviseur';
+
+      // AI Analyse Simulatie
+      currentFormData.aiSummary = `Knelpunt geanalyseerd t.a.v. ${currentFormData.target}: "${desc.substring(0, 110)}${desc.length > 110 ? '...' : ''}"`;
+      currentFormData.aiRec = `Opnemen in de veegronde van de Omgevingsverordening onder beleidsveld '${currentFormData.field}'. Herformuleer voor een eenduidige interpretatie.`;
+      currentFormData.aiRisk = `Laag tot middelmatig afbreukrisico bij aanpassing. Voorkomt bezwaarschriften en verduidelijkt beleidsruimte.`;
+
+      document.getElementById('ai-output-summary').innerText = `"${currentFormData.aiSummary}"`;
+      document.getElementById('ai-output-recommendation').innerText = currentFormData.aiRec;
+      document.getElementById('ai-output-risk').innerText = currentFormData.aiRisk;
+
       goToStep(4);
     }
 
-    function saveIssue() {
+    function saveWizardIssue() {
+      const newNum = String(db.length + 1).padStart(3, '0');
+      const newId = `IR-2026-${newNum}`;
+
       db.push({
-        id: Date.now(),
+        id: newId,
         type: currentFormData.type,
         target: currentFormData.target,
-        summary: currentFormData.summary,
+        field: currentFormData.field,
+        description: currentFormData.description,
+        solution: currentFormData.solution,
+        priority: currentFormData.priority,
+        status: "In behandeling",
+        reporter: currentFormData.reporter,
+        aiSummary: currentFormData.aiSummary,
+        aiRecommendation: currentFormData.aiRec,
+        aiRisk: currentFormData.aiRisk,
         checked: false
       });
 
+      document.getElementById('confirmed-id').innerText = newId;
       goToStep(5);
     }
 
     function resetWizard() {
-      document.getElementById('article-input').value = '';
-      document.getElementById('article-lid-input').value = '';
-      document.getElementById('issue-description').value = '';
+      document.getElementById('input-article').value = '';
+      document.getElementById('input-lid').value = '';
+      document.getElementById('input-description').value = '';
+      document.getElementById('input-solution').value = '';
+      document.getElementById('input-reporter').value = '';
       goToStep(1);
     }
 
+    // BROWSER VIEW
     function renderBrowser() {
-      const container = document.getElementById('issues-list');
+      const container = document.getElementById('browser-container');
       container.innerHTML = '';
 
       const grouped = {};
@@ -231,30 +620,110 @@
       });
 
       for(let target in grouped) {
-        let section = document.createElement('div');
-        section.className = "border border-slate-200 rounded-lg p-4 bg-slate-50";
-        
-        let header = `<h3 class="font-bold text-sky-900 mb-2 border-b pb-1 flex items-center justify-between">
-                        <span>${target}</span>
-                        <span class="text-xs font-normal bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full">${grouped[target].length} knelpunt(en)</span>
-                      </h3>`;
+        let card = document.createElement('div');
+        card.className = "border border-slate-200 rounded-xl p-5 bg-slate-50 space-y-3";
+
+        let header = `
+          <div class="flex justify-between items-center border-b pb-2">
+            <h3 class="font-bold text-sky-950 text-base flex items-center gap-2">
+              <span>📜 ${target}</span>
+            </h3>
+            <span class="text-xs bg-sky-100 text-sky-900 font-bold px-2.5 py-0.5 rounded-full">${grouped[target].length} knelpunt(en)</span>
+          </div>
+        `;
+
         let itemsHtml = grouped[target].map(item => `
-          <div class="flex items-start space-x-3 py-2">
-            <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleCheck(${item.id})" class="mt-1 h-4 w-4 text-sky-600 rounded cursor-pointer">
-            <span class="text-sm ${item.checked ? 'line-through text-slate-400' : 'text-slate-700'}">${item.summary}</span>
+          <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex items-start gap-3">
+            <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleCheck('${item.id}')" class="mt-1 h-4 w-4 text-sky-600 rounded cursor-pointer">
+            <div class="flex-1 cursor-pointer" onclick="openModal('${item.id}')">
+              <div class="flex justify-between items-start">
+                <span class="font-mono text-xs font-bold text-sky-900">${item.id}</span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded ${item.priority === 'Kritiek' ? 'bg-red-100 text-red-800' : 'bg-slate-100 text-slate-700'}">${item.priority}</span>
+              </div>
+              <p class="text-xs text-slate-800 mt-1 font-medium ${item.checked ? 'line-through text-slate-400' : ''}">${item.description}</p>
+              <p class="text-[11px] text-slate-500 mt-1 italic">💡 AI: ${item.aiSummary}</p>
+            </div>
           </div>
         `).join('');
 
-        section.innerHTML = header + itemsHtml;
-        container.appendChild(section);
+        card.innerHTML = header + itemsHtml;
+        container.appendChild(card);
       }
     }
 
     function toggleCheck(id) {
       let item = db.find(i => i.id === id);
       if(item) item.checked = !item.checked;
-      renderBrowser();
+      updateKPIs();
     }
+
+    function bulkMarkVeegronde() {
+      let count = 0;
+      db.forEach(item => {
+        if(item.checked) {
+          item.status = "Opgeslagen voor Veegronde";
+          count++;
+        }
+      });
+      if(count === 0) return alert('Vink eerst één of meerdere issues aan in de browser.');
+      alert(`${count} issue(s) succesvol gemarkeerd voor de Veegronde!`);
+      switchTab('dashboard');
+    }
+
+    // MODAL FUNCTIONS
+    function openModal(id) {
+      const item = db.find(i => i.id === id);
+      if(!item) return;
+
+      activeModalId = id;
+      document.getElementById('modal-id').innerText = item.id;
+      document.getElementById('modal-target').innerText = item.target;
+      document.getElementById('modal-field').innerText = item.field;
+      document.getElementById('modal-priority').innerText = item.priority;
+      document.getElementById('modal-status').innerText = item.status;
+      document.getElementById('modal-reporter').innerText = item.reporter;
+      document.getElementById('modal-description').innerText = item.description;
+      document.getElementById('modal-solution').innerText = item.solution;
+      document.getElementById('modal-ai-summary').innerText = item.aiSummary + " " + item.aiRecommendation;
+      document.getElementById('modal-status-select').value = item.status;
+
+      document.getElementById('modal-detail').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modal-detail').classList.add('hidden');
+      activeModalId = null;
+    }
+
+    function updateModalStatus() {
+      if(!activeModalId) return;
+      const item = db.find(i => i.id === activeModalId);
+      if(item) {
+        item.status = document.getElementById('modal-status-select').value;
+        closeModal();
+        updateKPIs();
+        renderDashboardTable();
+      }
+    }
+
+    // EXPORT TO CSV
+    function exportCSV() {
+      let csv = "ID,Type,Artikel_Of_Categorie,Beleidsveld,Omschrijving_Knelpunt,Mogelijke_Oplossing,Prioriteit,Status,Inzender\n";
+      db.forEach(i => {
+        csv += `"${i.id}","${i.type}","${i.target}","${i.field}","${i.description.replace(/"/g, '""')}","${i.solution.replace(/"/g, '""')}","${i.priority}","${i.status}","${i.reporter}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute("download", "Provincie_Knelpunten_Instructieregels.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // INITIALISATIE
+    updateKPIs();
+    renderDashboardTable();
   </script>
 </body>
 </html>
